@@ -25,14 +25,13 @@ Rectangle {
     height: monitorHeight
 
     radius: 40
-
-    color: Colours.tPalette.m3primary
-    border.color: "white"
+    color: Colours.tPalette.m3surfaceContainer
+    border.color: Colours.tPalette.m3primary
     border.width: 20
 
     Text {
         anchors.centerIn: parent
-        color: "white"
+        color: Colours.tPalette.m3primary
         font.pixelSize: 150
         font.bold: true
         text: monitorName

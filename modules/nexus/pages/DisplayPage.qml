@@ -50,7 +50,7 @@ PageBase {
         spacing: 8
 
         SectionHeader {
-            text: qsTr("Display Layout")
+            text: qsTr("Layout")
         }
 
         DisplayLayout {
