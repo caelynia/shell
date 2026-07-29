@@ -11,7 +11,6 @@ Rectangle {
     id: root
 
     property string monitorName: ""
-    property real monitorScale: 0.12
 
     property real monitorX: 0
     property real monitorY: 0
@@ -20,20 +19,21 @@ Rectangle {
 
     signal moved(real x, real y)
 
-    x: monitorX * monitorScale
-    y: monitorY * monitorScale
-    width: monitorWidth * monitorScale
-    height: monitorHeight * monitorScale
+    x: monitorX
+    y: monitorY
+    width: monitorWidth
+    height: monitorHeight
 
-    radius: 8
+    radius: 40
 
     color: Colours.tPalette.m3primary
     border.color: "white"
-    border.width: 2
+    border.width: 20
 
     Text {
         anchors.centerIn: parent
         color: "white"
+        font.pixelSize: 150
         font.bold: true
         text: monitorName
     }
