@@ -1,4 +1,4 @@
-import QtQuick
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
@@ -13,7 +13,7 @@ Rectangle {
     property var display_model
     property real scale: 0.12
 
-    color: "#232323"
+    color: Colours.tPalette.m3surfaceContainer
     radius: 10
     clip: true
 
@@ -27,23 +27,19 @@ Rectangle {
         y: 40
 
         Repeater {
+            id: repeater
+
             model: root.display_model
 
             delegate: DisplayMonitor {
-                scale: root.scale
+                monitorScale: root.scale
+                monitorName: model.name
 
-                name: display_model.name
+                monitorX: model.xPos
+                monitorY: model.yPos
 
-                monitorX: display_model.xPos
-                monitorY: display_model.yPos
-
-                monitorWidth: display_model.width
-                monitorHeight: display_model.height
-
-                onMoved: {
-                    root.display_model.setProperty(index, "xPos", x)
-                    root.display_model.setProperty(index, "yPos", y)
-                }
+                monitorWidth: model.width
+                monitorHeight: model.height
             }
         }
     }

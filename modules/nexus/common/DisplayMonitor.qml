@@ -10,8 +10,8 @@ import qs.modules.nexus.common
 Rectangle {
     id: root
 
-    property string name: ""
-    property real scale: 0.12
+    property string monitorName: ""
+    property real monitorScale: 0.12
 
     property real monitorX: 0
     property real monitorY: 0
@@ -20,14 +20,14 @@ Rectangle {
 
     signal moved(real x, real y)
 
-    x: monitorX * scale
-    y: monitorY * scale
-    width: monitorWidth * scale
-    height: monitorHeight * scale
+    x: monitorX * monitorScale
+    y: monitorY * monitorScale
+    width: monitorWidth * monitorScale
+    height: monitorHeight * monitorScale
 
     radius: 8
 
-    color: "#4F8EF7"
+    color: Colours.tPalette.m3primary
     border.color: "white"
     border.width: 2
 
@@ -35,7 +35,7 @@ Rectangle {
         anchors.centerIn: parent
         color: "white"
         font.bold: true
-        text: root.name
+        text: monitorName
     }
 
     DragHandler {
