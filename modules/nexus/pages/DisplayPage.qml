@@ -21,24 +21,24 @@ PageBase {
                 name: "Monitor 1"
                 xPos: 0
                 yPos: 0
-                width: 1920
-                height: 1080
+                screenWidth: 1920
+                screenHeight: 1080
             }
 
             ListElement {
                 name: "Monitor 2"
                 xPos: 1920
                 yPos: 200
-                width: 2560
-                height: 1440
+                screenWidth: 2560
+                screenHeight: 1440
             }
 
             ListElement {
                 name: "Monitor 3"
                 xPos: -1280
                 yPos: 100
-                width: 1280
-                height: 1024
+                screenWidth: 1280
+                screenHeight: 1024
             }
         }
 

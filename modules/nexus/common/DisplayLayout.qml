@@ -32,14 +32,20 @@ Rectangle {
             model: root.display_model
 
             delegate: DisplayMonitor {
+                required property string name
+                required property int xPos
+                required property int yPos
+                required property int screenWidth
+                required property int screenHeight
+
                 monitorScale: root.scale
-                monitorName: model.name
+                monitorName: name
 
-                monitorX: model.xPos
-                monitorY: model.yPos
+                monitorX: xPos
+                monitorY: yPos
 
-                monitorWidth: model.width
-                monitorHeight: model.height
+                monitorWidth: screenWidth
+                monitorHeight: screenHeight
             }
         }
     }
