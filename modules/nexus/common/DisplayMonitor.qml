@@ -11,18 +11,19 @@ Rectangle {
     id: root
 
     property string monitorName: ""
-
+    property int monitorID: 0
     property real monitorX: 0
     property real monitorY: 0
     property real monitorWidth: 1920
     property real monitorHeight: 1080
+    property real monitorScale: 1
 
     signal moved(real x, real y)
 
     x: monitorX
     y: monitorY
-    width: monitorWidth
-    height: monitorHeight
+    width: monitorWidth / monitorScale
+    height: monitorHeight / monitorScale
 
     radius: 40
     color: Colours.tPalette.m3surfaceContainer
@@ -43,8 +44,8 @@ Rectangle {
         onActiveChanged: {
             if (!active) {
                 root.moved(
-                    root.x / root.scale,
-                    root.y / root.scale
+                    root.monitorX / root.monitorScale,
+                    root.monitorY / root.monitorScale
                 )
             }
         }

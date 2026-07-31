@@ -29,9 +29,6 @@ Rectangle {
 
     property bool enableAnimations: false
 
-    Component.onCompleted: {
-        Qt.callLater(root.fitDisplays)
-    }
 
     Behavior on displayPanX {
         enabled: root.enableAnimations
@@ -64,8 +61,8 @@ Rectangle {
     radius: 10
     clip: true
 
-    implicitHeight: displayHeight
     implicitWidth: displayWidth
+    implicitHeight: displayHeight
 
     Item {
         id: canvas
@@ -80,19 +77,24 @@ Rectangle {
             model: root.display_model
 
             delegate: DisplayMonitor {
-                required property string name
-                required property int xPos
-                required property int yPos
-                required property int screenWidth
-                required property int screenHeight
+                required property string _monitorName
+                required property string _monitorID
+                required property int _monitorX
+                required property int _monitorY
+                required property int _monitorWidth
+                required property int _monitorHeight
+                required property real _monitorScale
 
-                monitorName: name
+                monitorName: _monitorName
+                monitorID: _monitorID
 
-                monitorX: xPos
-                monitorY: yPos
+                monitorX: _monitorX
+                monitorY: _monitorY
 
-                monitorWidth: screenWidth
-                monitorHeight: screenHeight
+                monitorWidth: _monitorWidth
+                monitorHeight: _monitorHeight
+
+                monitorScale: _monitorScale
             }
         }
     }
@@ -156,7 +158,7 @@ Rectangle {
 
     // Calculate perfect viewport to fit all displays
     function fitDisplays() {
-        if (!display_model || display_model.count === 0) {
+        if (!root.display_model || root.display_model.length === 0) {
             return;
         }
 
@@ -165,14 +167,12 @@ Rectangle {
         let maxX = -Infinity;
         let maxY = -Infinity;
 
-        for (let i = 0; i < display_model.count; i++) {
-            const display = display_model.get(i);
+        for (const display of root.display_model) {
+            minX = Math.min(minX, display._monitorX);
+            minY = Math.min(minY, display._monitorY);
 
-            minX = Math.min(minX, display.xPos);
-            minY = Math.min(minY, display.yPos);
-
-            maxX = Math.max(maxX, display.xPos + display.screenWidth);
-            maxY = Math.max(maxY, display.yPos + display.screenHeight);
+            maxX = Math.max(maxX, display._monitorX + display._monitorWidth / display._monitorScale);
+            maxY = Math.max(maxY, display._monitorY + display._monitorHeight / display._monitorScale);
         }
 
         const worldWidth = maxX - minX;
@@ -180,16 +180,16 @@ Rectangle {
 
         const coverPercentage = 0.8;
 
-        const scaleX = (root.displayWidth * coverPercentage) / worldWidth;
-        const scaleY = (root.displayHeight * coverPercentage) / worldHeight;
+        const scaleX = (root.width * coverPercentage) / worldWidth;
+        const scaleY = (root.height * coverPercentage) / worldHeight;
 
         const newScale = root.clampScale(Math.min(scaleX, scaleY));
 
         const centerX = minX + worldWidth / 2;
         const centerY = minY + worldHeight / 2;
 
-        const newPanX = root.displayWidth / 2 - centerX * newScale;
-        const newPanY = root.displayHeight / 2 - centerY * newScale;
+        const newPanX = root.width / 2 - centerX * newScale;
+        const newPanY = root.height / 2 - centerY * newScale;
 
         if (!root.enableAnimations) {
             // Set initial position (for animation)
