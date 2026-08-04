@@ -29,6 +29,8 @@ Rectangle {
 
     property bool enableAnimations: false
 
+    property var snapTargets: []
+    property var displayMonitors: []
 
     Behavior on displayPanX {
         enabled: root.enableAnimations
@@ -72,11 +74,13 @@ Rectangle {
         scale: root.displayScale
 
         Repeater {
-            id: repeater
+            id: repeater2
 
             model: root.display_model
 
             delegate: DisplayMonitor {
+                id: monitor
+
                 required property string _monitorName
                 required property string _monitorID
                 required property int _monitorX
@@ -95,6 +99,47 @@ Rectangle {
                 monitorHeight: _monitorHeight
 
                 monitorScale: _monitorScale
+
+                monitorSnapTargets: snapTargets
+
+                Component.onCompleted: {
+                    root.displayMonitors.push(monitor)
+                }
+
+                Component.onDestruction: {
+                    const index = root.displayMonitors.indexOf(monitor)
+                    if (index !== -1) {
+                        root.displayMonitors.splice(index, 1)
+                    }
+                }
+
+                // onMoved: (id, x, y, w, h) => {
+                //
+                //     for (const snapTarget of root.snapTargets) {
+                //         console.log("Before: ", snapTarget.id, ", ", snapTarget.maxX);
+                //     }
+                //
+                //     // Update snap target
+                //
+                //     const target = root.snapTargets.find(t => t.id === id);
+                //
+                //     if (target) {
+                //
+                //         target.minX = x;
+                //         target.minY = y;
+                //         target.maxX = x + w;
+                //         target.maxY = y + h;
+                //     }
+                //
+                //     for (const snapTarget of root.snapTargets) {
+                //         console.log("After: ", snapTarget.id, ", ", snapTarget.maxX);
+                //     }
+                // }
+
+                onPressed: id => {
+                    //console.log("pressed on: ", id)
+                    gatherSnapPositions(id)
+                }
             }
         }
     }
@@ -178,7 +223,7 @@ Rectangle {
         const worldWidth = maxX - minX;
         const worldHeight = maxY - minY;
 
-        const coverPercentage = 0.8;
+        const coverPercentage = 0.7;
 
         const scaleX = (root.width * coverPercentage) / worldWidth;
         const scaleY = (root.height * coverPercentage) / worldHeight;
@@ -211,5 +256,32 @@ Rectangle {
         root.displayPanX = root.panX;
         root.displayPanY = root.panY;
         root.displayScale = root.effectiveScale;
+
+        gatherSnapPositions();
+    }
+
+    // Calculates the snapping positions of the other monitors
+    function gatherSnapPositions() {
+        snapTargets.length = 0
+
+        for (const display of root.displayMonitors) {
+
+            if (!display) {
+                continue;
+            }
+
+            const x = display.monitorX;
+            const y = display.monitorY;
+            const width = display.monitorWidth / display.monitorScale;
+            const height = display.monitorHeight / display.monitorScale;
+
+            const i = display.monitorID;
+            const left = x;
+            const top = y;
+            const right = x + width;
+            const bottom = y + height;
+
+            snapTargets.push({id: i, minX: left, minY: top, maxX: right, maxY: bottom });
+        }
     }
 }

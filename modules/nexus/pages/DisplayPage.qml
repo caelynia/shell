@@ -45,8 +45,8 @@ PageBase {
     ColumnLayout {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-
         width: root.cappedWidth
+        spacing: Tokens.spacing.extraSmall / 2
 
         SectionHeader {
             text: qsTr("Layout")
@@ -58,6 +58,10 @@ PageBase {
             Layout.fillWidth: true
 
             display_model: root.monitorModel
+        }
+
+        SectionHeader {
+            text: qsTr("Per display config")
         }
 
         SelectRow {
