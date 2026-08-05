@@ -37,6 +37,20 @@ Rectangle {
     border.color: Colours.tPalette.m3primary
     border.width: 20
 
+    Behavior on x {
+        NumberAnimation {
+            duration: 70
+            easing.type: Easing.OutQuad
+        }
+    }
+
+    Behavior on y {
+        NumberAnimation {
+            duration: 70
+            easing.type: Easing.OutQuad
+        }
+    }
+
     Column {
         anchors.centerIn: parent
         spacing: 15
@@ -97,39 +111,61 @@ Rectangle {
 
             // Handle snapping
             for (const snapTarget of root.monitorSnapTargets) {
-                if (snapTarget.id === monitorID) {
+                if (snapTarget.id === monitorID)
                     continue;
+
+                const targetMinX = snapTarget.minX;
+                const targetMaxX = snapTarget.maxX;
+                const targetCenterX = (targetMinX + targetMaxX) / 2;
+
+                const targetMinY = snapTarget.minY;
+                const targetMaxY = snapTarget.maxY;
+                const targetCenterY = (targetMinY + targetMaxY) / 2;
+
+                const currentCenterX = (currentMinX + currentMaxX) / 2;
+                const currentCenterY = (currentMinY + currentMaxY) / 2;
+
+                // X alignments
+                const xCandidates = [
+                    // Edge - Edge
+                    targetMinX - currentMinX,
+                    targetMinX - currentMaxX,
+                    targetMaxX - currentMinX,
+                    targetMaxX - currentMaxX,
+
+                    // Center - Center
+                    targetCenterX - currentCenterX
+                ];
+
+                for (const dx of xCandidates) {
+                    const distance = Math.abs(dx);
+
+                    if (distance < snapDistanceX) {
+                        snapDistanceX = distance;
+                        snapX = targetX + dx;
+                    }
                 }
 
-                const left = snapTarget.minX - currentMaxX;
-                const right = snapTarget.maxX - currentMinX;
-                const top = snapTarget.minY - currentMaxY;
-                const bottom = snapTarget.maxY - currentMinY;
+                // Y alignments
+                const yCandidates = [
+                    // Edge - Edge
+                    targetMinY - currentMinY,
+                    targetMinY - currentMaxY,
+                    targetMaxY - currentMinY,
+                    targetMaxY - currentMaxY,
 
-                // Level 1: Edge snapping
-                if (left > 0 && left < snapDistanceX) {
-                    snapX = snapTarget.minX - root.width;
-                    snapDistanceX = left;
+                    // Center - Center
+                    targetCenterY - currentCenterY
+                ];
+
+                for (const dy of yCandidates) {
+                    const distance = Math.abs(dy);
+
+                    if (distance < snapDistanceY) {
+                        snapDistanceY = distance;
+                        snapY = targetY + dy;
+                    }
                 }
-                else if (right > 0 && right < snapDistanceX) {
-                    snapX = snapTarget.maxX;
-                    snapDistanceX = right;
-                }
-                if (top > 0 && top < snapDistanceY) {
-                    snapY = snapTarget.minY - root.height;
-                    snapDistanceY = top;
-                }
-                else if (bottom > 0 && bottom < snapDistanceY) {
-                    snapY = snapTarget.maxY;
-                    snapDistanceY = bottom;
-                }
-
-                // Level 2: Center snapping
-
-
-                // Level 3: Corner snapping
-
-
             }
 
             root.x = snapX;
