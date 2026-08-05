@@ -32,6 +32,8 @@ Rectangle {
     property var snapTargets: []
     property var displayMonitors: []
 
+    property int selectedMonitor: -1
+
     Behavior on displayPanX {
         enabled: root.enableAnimations
         NumberAnimation {
@@ -100,6 +102,8 @@ Rectangle {
 
                 monitorScale: _monitorScale
 
+                selected: root.selectedMonitor === monitorID
+
                 monitorSnapTargets: snapTargets
 
                 Component.onCompleted: {
@@ -137,7 +141,7 @@ Rectangle {
                 // }
 
                 onPressed: id => {
-                    //console.log("pressed on: ", id)
+                    root.selectedMonitor = id;
                     gatherSnapPositions(id)
                 }
             }
@@ -170,12 +174,15 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
-        acceptedButtons: Qt.RightButton | Qt.MiddleButton
+        acceptedButtons: Qt.MiddleButton | Qt.RightButton
 
         property real lastX: 0
         property real lastY: 0
 
         onPressed: event => {
+            if (event.button === Qt.LeftButton) {
+                root.selectedMonitor = -1;
+            }
             lastX = event.x
             lastY = event.y
         }

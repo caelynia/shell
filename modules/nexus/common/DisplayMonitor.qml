@@ -18,6 +18,7 @@ Rectangle {
     property int monitorHeight: 1080
     property real monitorScale: 1
 
+    property bool selected: false;
     property real u: 0;
     property real v: 0;
     property var monitorSnapTargets: []
@@ -34,8 +35,14 @@ Rectangle {
 
     radius: 40
     color: Colours.tPalette.m3surfaceContainer
-    border.color: Colours.tPalette.m3primary
-    border.width: 20
+    border.width: selected ? 28 : 20
+    border.color: selected
+        ? Colours.tPalette.m3primary
+        : Colours.tPalette.m3outline
+
+    Behavior on border.width {
+        NumberAnimation { duration: 60 }
+    }
 
     Behavior on x {
         NumberAnimation {
@@ -100,9 +107,6 @@ Rectangle {
 
             let snapX = targetX;
             let snapY = targetY;
-
-            let minSnapX = root.snapDistance;
-            let minSnapY = root.snapDistance;
 
             const currentMinX = targetX;
             const currentMinY = targetY;
