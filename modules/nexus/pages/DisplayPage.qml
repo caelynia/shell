@@ -1,5 +1,3 @@
-pragma ComponentBehavior: Bound
-
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
@@ -15,31 +13,44 @@ PageBase {
     id: root
 
     property var monitorModel: []
-    
-    readonly property list<MenuItem> orientationItems: [
-        MenuItem { text: qsTr("Landscape") },
-        MenuItem { text: qsTr("Portrait-Right") },
-        MenuItem { text: qsTr("Portrait-Left") },
-        MenuItem { text: qsTr("Landscape-Flipped") }
+
+    // Display orientations (index 0 = landscape, 1 = portrait-right, 2 = portrait-left, 3 = landscape-flipped)
+    readonly property list<MenuItem>  orientationItems: [
+        MenuItem {
+            text: qsTr("Landscape")
+        },
+        MenuItem {
+            text: qsTr("Portrait-Right")
+        },
+        MenuItem {
+            text: qsTr("Landscape-Left")
+        },
+        MenuItem {
+            text: qsTr("Landscape-Flipped")
+        }
     ]
 
     Component.onCompleted: {
         monitorProcess.running = true
     }
 
-    title: qsTr("Display")
+    // Display menu items — populated at runtime from hyprctl output.
+    // Moved to PageBase scope so it's always accessible via root.displayItems;
+    // ColumnLayout has no id, so the property can't be resolved from inside
+    // StdioCollector.onStreamFinished otherwise.
+    property var displayItems: []
 
-    ListModel {
-        id: displayModeList
-        onCountChanged: layout.fitDisplays()
-    }
+    title: qsTr("Display")
 
     ColumnLayout {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         width: root.cappedWidth
-        
-        SectionHeader { text: qsTr("Layout") }
+        spacing: Tokens.spacing.extraSmall / 2
+
+        SectionHeader {
+            text: qsTr("Layout")
+        }
 
         DisplayLayout {
             id: layout
@@ -49,49 +60,10 @@ PageBase {
             display_model: root.monitorModel
         }
 
-        SectionHeader { text: qsTr("Per display config") }
-
-        // ── Grid of per-monitor cards (one like hyprmod) ───
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: Tokens.spacing.extraSmall
-            
-            Repeater {
-                model: root.monitorModel
-                
-                MonitorConfigCard {
-                    Layout.fillWidth: true
-                    
-                    monitorName:   _monitorName
-                    monitorID:     _monitorID
-                    enabled:       true  // TODO: read current state from hyprctl
-                    description:   ""  // TODO: populate with model+make from hyprctl
-                    
-                    monitorX:      _monitorX
-                    monitorY:      _monitorY
-                    
-                    availableModes: []  // TODO: fetch with hyprctl output-all-modes DP-1
-                    
-                    // Position info passed to advanced section
-                    monitorX: _monitorX
-                    monitorY: _monitorY
-                }
-            }
+        SectionHeader {
+            text: qsTr("Per display config")
         }
 
-        Component.onCompleted: {
-            // This block will be moved into the Process handler instead
-            displayModeList.clear()
-            
-            for (var i = displayItems.length - 1; i >= 0; --i) {
-                if (displayItems[i].selected) {
-                    displayMoveItem.move(i, 0)
-                    break
-                }
-            }
-        }
-
-        // ── Display selector / active monitor picker ───────
         SelectRow {
             first: true
             label: qsTr("Display")
@@ -100,8 +72,6 @@ PageBase {
             //active: displayItems.length > 0 ? displayItems[0] : null
             //onSelected:
         }
-
-        SectionHeader { text: qsTr("Monitor Settings") }
 
         ToggleRow {
             text: qsTr("Enabled")
@@ -120,20 +90,23 @@ PageBase {
 
         SelectRow {
             label: qsTr("Orientation")
-            menuItems: orientationItems
-            active: orientationItems[0]
+            //subtext: qsTr("")
+            menuItems: root.orientationItems
+            active: root.orientationItems[0]
             //onSelected:
         }
 
         SelectRow {
             label: qsTr("Refresh Rate")
-            menuItems: orientationItems
-            active: orientationItems[0]
+            //subtext: qsTr("")
+            menuItems: root.orientationItems
+            active: root.orientationItems[0]
             //onSelected:
         }
 
         Component {
             id: menuItemComponent
+
             MenuItem {}
         }
 
@@ -144,29 +117,28 @@ PageBase {
 
             stdout: StdioCollector {
                 onStreamFinished: {
-                    root.monitorModel = JSON.parse(text).map(function(monitor) {
-                        return {
-                            _monitorName: monitor.model,
-                            _monitorID: monitor.id,
-                            _monitorX: monitor.x,
-                            _monitorY: monitor.y,
-                            _monitorWidth: monitor.width,
-                            _monitorHeight: monitor.height,
-                            _monitorScale: monitor.scale
-                        }
-                    })
+                    root.monitorModel = JSON.parse(text).map(monitor => ({
+                        _monitorName: monitor.model,
+                        _monitorID: monitor.id,
+                        _monitorX: monitor.x,
+                        _monitorY: monitor.y,
+                        _monitorWidth: monitor.width,
+                        _monitorHeight: monitor.height,
+                        _monitorScale: monitor.scale
+                    }))
 
-                    var items = []
+                    let items = []
 
-                    for (var i = 0; i < root.monitorModel.length; ++i) {
-                       var item = menuItemComponent.createObject(null, {
-                           text: root.monitorModel[i]._monitorName
-                       })
-                       items.push(item)
+                    for (const monitor of root.monitorModel) {
+                       items.push(
+                          menuItemComponent.createObject(null, {
+                              text: monitor._monitorName
+                          })
+                       )
                     }
 
-                    displayItems = items
-                    
+                    root.displayItems = items
+
                     layout.fitDisplays()
                 }
             }
