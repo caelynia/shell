@@ -73,6 +73,21 @@ PageBase {
             //onSelected:
         }
 
+        ToggleRow {
+            text: qsTr("Enabled")
+            subtext: qsTr("Whether the display should be turned on or off")
+            enabled: true
+            opacity: true ? 1 : 0.5
+            //checked:
+            onToggled: {
+
+            }
+
+            Behavior on opacity {
+                Anim {}
+            }
+        }
+
         SelectRow {
             label: qsTr("Orientation")
             //subtext: qsTr("")

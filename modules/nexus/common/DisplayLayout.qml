@@ -117,29 +117,6 @@ Rectangle {
                     }
                 }
 
-                // onMoved: (id, x, y, w, h) => {
-                //
-                //     for (const snapTarget of root.snapTargets) {
-                //         console.log("Before: ", snapTarget.id, ", ", snapTarget.maxX);
-                //     }
-                //
-                //     // Update snap target
-                //
-                //     const target = root.snapTargets.find(t => t.id === id);
-                //
-                //     if (target) {
-                //
-                //         target.minX = x;
-                //         target.minY = y;
-                //         target.maxX = x + w;
-                //         target.maxY = y + h;
-                //     }
-                //
-                //     for (const snapTarget of root.snapTargets) {
-                //         console.log("After: ", snapTarget.id, ", ", snapTarget.maxX);
-                //     }
-                // }
-
                 onPressed: id => {
                     root.selectedMonitor = id;
                     gatherSnapPositions(id)
